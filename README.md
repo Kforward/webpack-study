@@ -1,34 +1,47 @@
 # 学习 webpack
 
-> webpack - 生产环境
-
-`mode: 'development',`
-提示当前为生产环境
+> webpack - 代码分离
 
 
-`clean: true`
+## 手动配置
 
-每次构建时，清空dist目录内容
+配置 entry 的方式，可以使多个模块中的相同引用 提取出来，减少打包后的重复代码
+
+此处在 `index.js` 与 `another-module.js` 中都引用了 `lodash` 通过配置，可以将 lodash 提取出一个单独的 `bundle` 
 
 ```js
-output: {
-    clean: true
+entry: {
+  index: {
+    import: './src/index.js',
+    dependOn: 'shared',
   },
+  another: {
+    import: './src/another-module.js',
+    dependOn: 'shared',
+  },
+  shared: 'lodash',
+},
 ```
 
-`watch: webpack --watch` 
-开启 webpack 的观察者模式，当 webpack 追踪依赖的文件发生了改变后，会热更新代码，但是浏览器不会刷新 
+## SplitChunksPlugin
 
-```json
-"scripts": {
-    "watch": "webpack --watch",
-  },
-```
+`SplitChunksPlugin` 插件可以将公共的依赖模块提取到已有的入口 chunk 中，或者提取到一个新生成的 chunk。
 
-`webpack-dev-server`
-开启 dev-server 监听 webpack 依赖的代码文件有所变动后，热更新代码以及浏览器 (建议配合模块热更新使用)
 ```js
- devServer: {
-    static: './dist'
-  },
+optimization: {
+  splitChunks: {
+    chunks: 'all',
+  }
+}
 ```
+
+## other
+
+// 当入口(entry)具有多文件的时候，如果不配置 optimization.runtimeChunk: 'single' 会出现问题
+```js
+optimization: {
+  runtimeChunk: 'single'
+}
+```
+
+

@@ -4,9 +4,6 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "webpack server --open",
-    "serve": "node server.js",
-    "watch": "webpack --watch",
     "build": "webpack"
   },
   "keywords": [],
