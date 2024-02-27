@@ -1,47 +1,43 @@
 # 学习 webpack
 
-> webpack - 代码分离
+> webpack - 缓存
 
-
-## 手动配置
-
-配置 entry 的方式，可以使多个模块中的相同引用 提取出来，减少打包后的重复代码
-
-此处在 `index.js` 与 `another-module.js` 中都引用了 `lodash` 通过配置，可以将 lodash 提取出一个单独的 `bundle` 
+修改 `output.filename` 命名规则，借用 webpack 的内置方法使打包后的文件名中生成一个 hash 值，通过下方的配置优化后，实现浏览器缓存
 
 ```js
-entry: {
-  index: {
-    import: './src/index.js',
-    dependOn: 'shared',
-  },
-  another: {
-    import: './src/another-module.js',
-    dependOn: 'shared',
-  },
-  shared: 'lodash',
+output: {
+  filename: '[name].[contenthash].js',
 },
 ```
 
-## SplitChunksPlugin
+设置 `optimization.runtimeChunk` 为 `single`  可以将运行时代码抽离成一个单独的 chunk； `single` 值可以为每一个单独的chunk创建一个  运行时 的 bundle (打包时，webpack可以根据判断是否修改文件名中  hash 值以达到浏览器数据缓存的变更)
 
-`SplitChunksPlugin` 插件可以将公共的依赖模块提取到已有的入口 chunk 中，或者提取到一个新生成的 chunk。
+```js
+optimization: {
+  runtimeChunk: 'single',
+},
+```
+
+设置 `optimization.splitChunks.cacheGroups.vendor` 可以将不会频繁修改的第三方库代码抽离成一个单独的 chunk 可以进一步减少客户端对服务器的请求，同时保证自身代码与服务器一致；
 
 ```js
 optimization: {
   splitChunks: {
-    chunks: 'all',
+    cacheGroups: {
+      vendor: {
+        test: /[\\/]node_modules[\\/]/,
+        name: 'vendors',
+        chunks: 'all',
+      }
+    }
   }
 }
+
 ```
+设置 `optimization.moduleIds` 为 `deterministic`  可以实现长期缓存效果，在项目代码变动时，第三方依赖的 hash 不会发生变化
 
-## other
-
-// 当入口(entry)具有多文件的时候，如果不配置 optimization.runtimeChunk: 'single' 会出现问题
 ```js
 optimization: {
-  runtimeChunk: 'single'
+  moduleIds: 'deterministic',
 }
 ```
-
-
