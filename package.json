@@ -5,7 +5,7 @@
   "description": "一个学习webpack创建库的小demo",
   "private": false,
   "scripts": {
-    "build": "webpack"
+    "build": "webpack --env development goal=local"
   },
   "keywords": ["webpack"],
   "author": "",
