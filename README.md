@@ -1,3 +1,3 @@
 # 学习 webpack
 
-> webpack - 管理资源
+> webpack - 基本状态
