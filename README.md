@@ -1,43 +1,57 @@
 # 学习 webpack
 
-> webpack - 缓存
+> webpack - 创建库
 
-修改 `output.filename` 命名规则，借用 webpack 的内置方法使打包后的文件名中生成一个 hash 值，通过下方的配置优化后，实现浏览器缓存
+## 暴露库
+
+设置 `output.library.name` 的值，将编写的库对外暴露，用户在使用时候可以直接使用
 
 ```js
 output: {
-  filename: '[name].[contenthash].js',
+  path: path.resolve(__dirname, 'dist'),
+  filename: 'webpack-numbers.js',
+  library: {
+    name: 'webpackNumbers',
+    type: 'umd',
+  },
 },
 ```
 
-设置 `optimization.runtimeChunk` 为 `single`  可以将运行时代码抽离成一个单独的 chunk； `single` 值可以为每一个单独的chunk创建一个  运行时 的 bundle (打包时，webpack可以根据判断是否修改文件名中  hash 值以达到浏览器数据缓存的变更)
+```html
+<script src="https://example.org/webpack-numbers.js"></script>
+
+<script>
+ window.webpackNumbers.xxx()
+<script/>
+```
+
+设置 `output.library.type` 可以支持用户的导入方式 CommonJS、AMD 模块以及 script 标签使用
 
 ```js
-optimization: {
-  runtimeChunk: 'single',
+output: {
+  path: path.resolve(__dirname, 'dist'),
+  filename: 'webpack-numbers.js',
+  library: {
+    name: 'webpackNumbers',
+    type: 'umd',
+  },
 },
 ```
 
-设置 `optimization.splitChunks.cacheGroups.vendor` 可以将不会频繁修改的第三方库代码抽离成一个单独的 chunk 可以进一步减少客户端对服务器的请求，同时保证自身代码与服务器一致；
+
+设置 `externals.lodash` 可以将 lodash 排除打包，意味着该三方库使用者是必须安装的
 
 ```js
-optimization: {
-  splitChunks: {
-    cacheGroups: {
-      vendor: {
-        test: /[\\/]node_modules[\\/]/,
-        name: 'vendors',
-        chunks: 'all',
-      }
-    }
-  }
-}
-
+externals: {
+  lodash: {
+    commonjs: 'lodash',
+    commonjs2: 'lodash',
+    amd: 'lodash',
+    root: '_',
+  },
+},
 ```
-设置 `optimization.moduleIds` 为 `deterministic`  可以实现长期缓存效果，在项目代码变动时，第三方依赖的 hash 不会发生变化
 
-```js
-optimization: {
-  moduleIds: 'deterministic',
-}
-```
+## 最后
+
+修改 `package.json`  `main` 的值为 打包后的文件位置，或设置 `main` 为工程目录的地址 
